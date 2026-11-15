@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fake Job Posting Detection · ES 335</title><link rel="stylesheet" href="style.css"></head><body>
+<nav><a href="#question">Question</a><a href="#data">Data</a><a href="#preprocessing">Preprocessing</a><a href="#methods">Baseline &amp; methods</a><a href="#evaluation">Evaluation</a><a href="#results">Results</a><a href="#try">Try it</a><a href="#errors">Errors</a><a href="#limitations">Limitations</a><a href="#conclusion">Conclusion</a><a href="#reproduce">Reproduce</a></nav>
+<header><h1>Can a model spot a fake job posting?</h1>
+<p class="lead">ES 335 ML project. A logistic regression reads a posting's text, details and company signals and estimates how likely it is to be fraudulent. Scroll through the method, or jump to <a href="#try">Try it</a> and test your own posting.</p></header>
+
+<section id="question"><h2>Question</h2>
+<p><b>Can we predict whether a job posting is fraudulent using only what is visible on the posting?</b> Each row is one posting; the target is <code>fraudulent</code> (1 = fraud, 0 = genuine). Inputs are the title, description, requirements, five category fields and three yes/no flags (company logo, screening questions, company profile).</p>
+<p>The claim is limited: this ranks postings by suspicion for a human to review. It does not prove fraud, and it was trained on one dataset of older postings.</p></section>
+
+<section id="data"><h2>Data</h2>
+<p>The data is the public Kaggle <a href="https://www.kaggle.com/datasets/shivamb/real-or-fake-fake-jobposting-prediction">Real / Fake Job Posting Prediction</a> dataset: 17,880 postings and 18 columns, of which 866 (4.84%) are fraudulent. It is not stored in this repo; download it from Kaggle.</p>
+<p><b>Quality checks.</b> Several columns are mostly empty: salary range 84% missing, department 65%, required education 45%, benefits 40%. Duplicates are a problem: 281 rows are exact copies, and 1,932 more share the same title, description and requirements. No duplicate group had conflicting labels.</p></section>
+
+<section id="preprocessing"><h2>Preprocessing</h2>
+<ul><li><b>Remove duplicates first</b> (same title, description, requirements), leaving 15,948 postings with 688 frauds (4.31%). Otherwise the same posting could sit in both training and test data and inflate scores.</li>
+<li><b>Drop weak columns</b> (ID, location, salary, department, benefits, telecommuting). Their mutual information with the label was near zero, except country (0.018), which we left out for simplicity.</li>
+<li><b>Fill gaps:</b> missing categories become "Missing" (itself informative); missing text becomes empty. A <code>has_company_profile</code> flag keeps the signal from the dropped profile text.</li>
+<li><b>One text field:</b> title, description and requirements are joined, then turned into TF-IDF scores (5,000 words, English stop words removed, words in at least 5 postings), which up-weights words that are common in one posting but rare overall. Categories are one-hot encoded; flags pass through.</li>
+<li><b>Split before learning:</b> stratified 80/20 train/test split (12,758 train with 550 frauds; 3,190 test with 138 frauds). TF-IDF and encoders live inside a pipeline, so they are re-fit on training folds only and never see validation or test rows.</li></ul></section>
+
+<section id="methods"><h2>Baseline and methods</h2>
+<p><b>Baseline:</b> always predict "genuine". It scores 95.7% accuracy but catches no fraud (recall 0), so any real model has to beat it on recall, F1 and PR-AUC rather than accuracy.</p>
+<p><b>Model:</b> logistic regression with <code>class_weight='balanced'</code>, because fraud is rare. It suits sparse text features, trains fast, and each word gets a weight we can read, which powers the explanations on this page. We tuned the penalty (L1 or L2) and strength C (0.01 to 100) with 5-fold stratified cross-validation scored by PR-AUC. The best setting was L2 with C = 10.</p></section>
+
+<section id="evaluation"><h2>Evaluation</h2>
+<p>Tuning and final testing are kept apart: the grid search used only the training set with 5-fold stratified CV (same folds for every model), and the test set was scored <b>once</b> at the end. Stratification keeps the 4% fraud rate in every fold.</p>
+<p>Because only about 4% of postings are fraud, accuracy is misleading. We lead with <b>PR-AUC</b> (ranking quality for the rare class), <b>recall</b> (frauds caught) and <b>precision</b> (flags that are right), and report F1 and ROC-AUC as summaries. Bootstrap intervals (1,000 resamples of the test set) show how uncertain the numbers are.</p></section>
+
+<section id="results"><h2>Results</h2>
+<table><tr><th>Metric</th><th>Baseline (test)</th><th>CV on train (mean)</th><th>Test</th><th>Test 95% interval</th></tr>
+<tr><td>Accuracy</td><td>0.957</td><td>0.965</td><td>0.970</td><td>n/a</td></tr>
+<tr><td>Precision</td><td>0.000</td><td>0.580</td><td>0.612</td><td>0.537 to 0.677</td></tr>
+<tr><td>Recall</td><td>0.000</td><td>0.731</td><td>0.812</td><td>0.746 to 0.874</td></tr>
+<tr><td>F1</td><td>0.000</td><td>0.646</td><td>0.698</td><td>0.636 to 0.748</td></tr>
+<tr><td>PR-AUC</td><td>0.043</td><td>0.711</td><td>0.806</td><td>0.743 to 0.857</td></tr>
+<tr><td>ROC-AUC</td><td>0.500</td><td>0.955</td><td>0.976</td><td>n/a</td></tr></table>
+<p>The model catches 112 of 138 test frauds (recall 0.81), but about 4 in 10 of its flags are false alarms. Test scores sit slightly above CV, which is within the uncertainty of only 138 test frauds.</p>
+<div class="card"><b>Explore the trade-off.</b> Move the threshold on the 3,190 test postings: a lower threshold catches more fraud but raises false alarms.
+<label>Threshold: <b id="ethv"></b></label><input type="range" id="eth" min="0.05" max="0.95" step="0.01" value="0.5">
+<div class="cols"><div id="cm"></div><div><canvas id="pr" width="400" height="300"></canvas><small>Precision-recall curve; the red dot is the current threshold.</small></div></div></div></section>
+
+<section id="try"><h2>Try it</h2>
+<p>Edit a posting or load an example. The score updates as you type. Educational demo only, not a real fraud verdict.</p>
+<div class="ex" id="ex"></div><p id="truth"><small></small></p>
+<form class="card" id="form" onsubmit="return false">
+<label>Title</label><input id="t"><label>Description</label><textarea id="d"></textarea><label>Requirements</label><textarea id="q"></textarea>
+<div class="g3"><div><label>Industry</label><select id="industry"></select></div><div><label>Function</label><select id="function"></select></div><div><label>Employment type</label><select id="employment_type"></select></div></div>
+<div class="g2"><div><label>Required education</label><select id="required_education"></select></div><div><label>Required experience</label><select id="required_experience"></select></div></div>
+<div class="chk"><label><input type="checkbox" id="has_company_logo">Company logo</label><label><input type="checkbox" id="has_company_profile">Company profile</label><label><input type="checkbox" id="has_questions">Screening questions</label></div>
+<label>Decision threshold: <b id="thv"></b> (flag as fraud at or above this probability)</label><input type="range" id="th" min="0.05" max="0.95" step="0.01" value="0.5">
+<p id="verdict"></p><div class="meter"><div id="bar"></div><div id="mark"></div></div></form>
+<div class="cols"><div><h3>Words that moved the score</h3><small>Red pushes toward fraud, green toward genuine; hover for the exact value.</small><div id="hl"></div></div>
+<div><h3>Biggest contributors</h3><small>Words, dropdown choices and flags, in log-odds.</small><div id="why"></div></div></div>
+<div class="cols"><div><h3>Words the model links most to fraud</h3><ul id="wf"></ul></div><div><h3>Words it links most to genuine</h3><ul id="wg"></ul></div></div></section>
+
+<section id="errors"><h2>Errors</h2>
+<p>At threshold 0.5 the model makes 71 false alarms and misses 26 frauds. Load them above with the "False alarm" and "Fraud missed" buttons.</p>
+<ul><li><b>False alarms:</b> the highest-scoring genuine postings (up to 99%) mostly have no company logo or profile, which the model treats as strong fraud signals.</li>
+<li><b>Missed frauds:</b> postings like "Sir Awesome" and a home-care nursing ad read like ordinary jobs, and their text and company signals look normal.</li></ul></section>
+
+<section id="limitations"><h2>Limitations</h2>
+<ul><li>One dataset from one source, collected years ago; scammers change tactics, so results may not carry over to today's postings.</li>
+<li>Only 138 test frauds: the intervals are wide (recall could be 0.75 to 0.87).</li>
+<li>The model leans on logo and profile flags and on industry words (oil, gas, subsea), which may reflect how this dataset was collected rather than fraud itself.</li>
+<li>Precision is about 0.6, so flags need human review. Duplicates were removed by exact text match; near-duplicates may remain.</li></ul></section>
+
+<section id="conclusion"><h2>Conclusion</h2>
+<p>A tuned, class-weighted logistic regression clearly beats the always-genuine baseline (PR-AUC 0.81 vs 0.04, recall 0.81 vs 0) and is easy to explain. It is useful as a triage tool, not as a final judge. Next steps would be near-duplicate removal, adding country, and testing on newer postings.</p>
+<div class="card"><b>My contribution and key choices:</b> <i>[Write 3 to 4 sentences here: what you did, why you removed duplicates before splitting, why PR-AUC, and one limitation.]</i></div></section>
+
+<section id="reproduce"><h2>Reproduce</h2>
+<ol><li>Download <code>fake_job_postings.csv</code> from Kaggle (link above).</li>
+<li>Install the packages: <code>pip install -r requirements.txt</code> (scikit-learn 1.6.1).</li>
+<li>Run <code>ML_project_data_analysis.ipynb</code> top to bottom (random seed 42 everywhere). The last cell writes <code>model.json</code> and <code>examples.json</code>; the earlier test cell writes <code>test_scores.csv</code> and <code>fraud_model.joblib</code>.</li>
+<li>Preview the site: run <code>python -m http.server</code> in this folder and open <code>localhost:8000</code>.</li></ol>
+<p><small>The raw dataset and API keys are not committed. Only load .joblib files you trust.</small></p></section>
+<script src="app.js"></script></body></html>

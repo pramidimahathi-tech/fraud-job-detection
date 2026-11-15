@@ -1,5 +1,0 @@
-group,has_company_logo,has_company_profile,has_questions,count,median_score,median_words
-Caught fraud,0.25,0.25,0.21,112,0.977,190.0
-Correct genuine,0.83,0.85,0.5,2981,0.003,245.0
-False alarm,0.37,0.3,0.44,71,0.702,174.0
-Missed fraud,0.42,0.42,0.42,26,0.149,182.0

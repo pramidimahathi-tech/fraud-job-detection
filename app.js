@@ -39,9 +39,9 @@ function explore(){
  const th=+$('#eth').value,s=stats(th);$('#ethv').textContent=th.toFixed(2);
  $('#cm').innerHTML=`<table><tr><th></th><th>Predicted genuine</th><th>Predicted fraud</th></tr><tr><th>Actually genuine</th><td>${s.tn}</td><td>${s.fp}</td></tr><tr><th>Actually fraud</th><td>${s.fn}</td><td>${s.tp}</td></tr></table>
  <p>Precision <b>${s.pr.toFixed(3)}</b> · Recall <b>${s.rc.toFixed(3)}</b> · F1 <b>${s.f1.toFixed(3)}</b><br>Flagged ${s.tp+s.fp} of ${TS.length} postings; caught ${s.tp} of ${s.tp+s.fn} frauds.</p>`;
- const cv=$('#pr'),g=cv.getContext('2d'),W=cv.width,H=cv.height,P=34,fg=getComputedStyle(document.body).color;
+ const cv=$('#pr'),g=cv.getContext('2d'),W=cv.width,H=cv.height,P=46,fg=getComputedStyle(document.body).color;
  const X=r=>P+r*(W-P-10),Y=p=>H-P-p*(H-P-10);g.clearRect(0,0,W,H);g.strokeStyle=fg;g.fillStyle=fg;g.globalAlpha=.5;
- g.strokeRect(P,10,W-P-10,H-P-10);g.fillText('Recall',W/2-15,H-8);g.fillText('Precision',2,18);g.globalAlpha=1;
+ g.strokeRect(P,10,W-P-10,H-P-10);ax(g,W,H,P,'Recall','Precision',['0','0.5','1'],['0','0.5','1']);g.globalAlpha=1;
  g.strokeStyle='#2b5fd9';g.lineWidth=2;g.beginPath();curve.forEach((c,i)=>i?g.lineTo(X(c.rc),Y(c.pr)):g.moveTo(X(c.rc),Y(c.pr)));g.stroke();
  g.fillStyle='#c8372d';g.beginPath();g.arc(X(s.rc),Y(s.pr),6,0,7);g.fill();
 }
@@ -66,10 +66,14 @@ function look(){const w=$('#wq').value.trim().toLowerCase(),v=M.vocab[w];$('#wo'
 function queue(){
  const n=+$('#qn').value,tot=CUM[CUM.length-1],f=CUM[n],rnd=n*tot/TS.length;$('#qnv').textContent=n+' of '+TS.length;
  $('#qo').innerHTML=`Reviewing the <b>${n}</b> highest-scoring postings finds <b>${f} of ${tot}</b> frauds (${(f/tot*100).toFixed(0)}%). Random review would find about ${rnd.toFixed(1)}, so the model is <b>${(f/rnd).toFixed(0)}x</b> better.`;
- const cv=$('#qc'),g=cv.getContext('2d'),W=cv.width,H=cv.height,P=34,Mx=600,fg=getComputedStyle(document.body).color;
+ const cv=$('#qc'),g=cv.getContext('2d'),W=cv.width,H=cv.height,P=46,Mx=600,fg=getComputedStyle(document.body).color;
  const X=i=>P+i/Mx*(W-P-10),Y=v=>H-P-v/tot*(H-P-10);g.clearRect(0,0,W,H);g.strokeStyle=fg;g.fillStyle=fg;g.globalAlpha=.5;
- g.strokeRect(P,10,W-P-10,H-P-10);g.fillText('Postings reviewed (highest score first)',P+70,H-8);g.fillText('Frauds found',2,18);
+ g.strokeRect(P,10,W-P-10,H-P-10);ax(g,W,H,P,'Postings reviewed (highest score first)','Frauds found',['0','300','600'],['0',String(Math.round(tot/2)),String(tot)]);
  g.setLineDash([4,4]);g.beginPath();g.moveTo(X(0),Y(0));g.lineTo(X(Mx),Y(Mx*tot/TS.length));g.stroke();g.setLineDash([]);g.globalAlpha=1;
  g.strokeStyle='#2b5fd9';g.lineWidth=2;g.beginPath();for(let i=0;i<=Mx;i++)i?g.lineTo(X(i),Y(CUM[i])):g.moveTo(X(0),Y(0));g.stroke();
  g.fillStyle='#c8372d';g.beginPath();g.arc(X(n),Y(f),6,0,7);g.fill();
 }
+function ax(g,W,H,P,xl,yl,xt,yt){g.textAlign='center';g.fillText(xl,(P+W-10)/2,H-6);
+ g.save();g.translate(12,(H-P+10)/2);g.rotate(-Math.PI/2);g.fillText(yl,0,0);g.restore();
+ g.textAlign='right';yt.forEach((t,i)=>g.fillText(t,P-5,H-P-i/(yt.length-1)*(H-P-10)+4));
+ g.textAlign='center';xt.forEach((t,i)=>g.fillText(t,P+i/(xt.length-1)*(W-P-10),H-P+14));g.textAlign='left'}

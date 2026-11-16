@@ -3,7 +3,7 @@ const CATS=['industry','function','required_education','required_experience','em
 const FLAGS=['has_company_logo','has_questions','has_company_profile'];
 const esc=t=>t.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 const nm=k=>k.replace(/_/g,' ');
-let M,EX,TS,curve;
+let M,EX,TS,curve,SORT,CUM;
 Promise.all([fetch('model.json').then(r=>r.json()),fetch('examples.json').then(r=>r.json()),fetch('test_scores.csv').then(r=>r.text())])
 .then(([m,e,c])=>{M=m;EX=e.examples;const L=c.trim().split('\n'),h=L[0].split(','),yi=h.indexOf('y_true'),si=h.indexOf('score');
 TS=L.slice(1).map(l=>{const p=l.split(',');return[+p[yi],+p[si]]});init()})
@@ -22,7 +22,7 @@ function score(r){
 function read(){const r={title:$('#t').value,description:$('#d').value,requirements:$('#q').value};
  CATS.forEach(k=>r[k]=$('#'+k).value);FLAGS.forEach(k=>r[k]=$('#'+k).checked?1:0);return r}
 function run(){
- const s=score(read()),th=+$('#th').value,f=s.p>=th;$('#thv').textContent=th.toFixed(2);
+ const r0=read(),s=score(r0),th=+$('#th').value,f=s.p>=th;$('#wi').innerHTML=FLAGS.map(k=>{const p2=score({...r0,[k]:1-r0[k]}).p;return `<div class="row2"><span>${nm(k)}: ${r0[k]?'yes':'no'} to ${r0[k]?'no':'yes'}</span><b>${(s.p*100).toFixed(0)}% to ${(p2*100).toFixed(0)}% fraud</b></div>`}).join('');$('#thv').textContent=th.toFixed(2);
  $('#verdict').innerHTML=`<b class="${f?'bad':'good'}">${f?'Likely FRAUD':'Looks genuine'}</b>: fraud probability <b>${(s.p*100).toFixed(1)}%</b> against a threshold of ${(th*100).toFixed(0)}%`;
  $('#bar').style.width=s.p*100+'%';$('#mark').style.left=th*100+'%';
  $('#hl').innerHTML=s.text.split(/(\b\w\w+\b)/).map((p,i)=>{const x=i%2&&s.c[p.toLowerCase()];if(!x)return esc(p);
@@ -54,5 +54,22 @@ function init(){
  const W=Object.entries(M.vocab).map(([w,v])=>[w,v[1]]).sort((a,b)=>b[1]-a[1]);
  $('#wf').innerHTML=W.slice(0,12).map(x=>`<li>${x[0]} (+${x[1].toFixed(1)})</li>`).join('');
  $('#wg').innerHTML=W.slice(-12).reverse().map(x=>`<li>${x[0]} (${x[1].toFixed(1)})</li>`).join('');
+ SORT=[...TS].sort((a,b)=>b[1]-a[1]);CUM=[0];SORT.forEach(x=>CUM.push(CUM[CUM.length-1]+x[0]));$('#qn').oninput=queue;queue();
+ $('#msel').innerHTML=MET.map((m,i)=>`<option value="${i}">${m}</option>`).join('');$('#msel').onchange=cmp;cmp();$('#wq').oninput=look;
  explore();load(EX[0]);
+}
+
+const CMP={'Baseline (always genuine)':[.957,0,0,0,.043,.5],'Logistic regression':[.965,.580,.731,.646,.711,.955],'Random forest':[.971,.954,.353,.514,.732,.956]};
+const MET=['Accuracy','Precision','Recall','F1','PR-AUC','ROC-AUC'];
+function cmp(){const i=+$('#msel').value;$('#mbars').innerHTML=Object.entries(CMP).map(([n,v])=>`<div class="hb"><span>${n.replace(' (always genuine)','')}</span><span class="t"><i style="width:${v[i]*100}%"></i></span><em>${v[i].toFixed(3)}</em></div>`).join('')}
+function look(){const w=$('#wq').value.trim().toLowerCase(),v=M.vocab[w];$('#wo').textContent=!w?'':v?`"${w}": weight ${v[1].toFixed(2)} (${v[1]>0?'pushes toward fraud':'pushes toward genuine'}); IDF ${v[0].toFixed(2)} (higher means rarer).`:`"${w}" is not one of the model's 5,000 words (too rare, a stop word, or not in the training text).`}
+function queue(){
+ const n=+$('#qn').value,tot=CUM[CUM.length-1],f=CUM[n],rnd=n*tot/TS.length;$('#qnv').textContent=n+' of '+TS.length;
+ $('#qo').innerHTML=`Reviewing the <b>${n}</b> highest-scoring postings finds <b>${f} of ${tot}</b> frauds (${(f/tot*100).toFixed(0)}%). Random review would find about ${rnd.toFixed(1)}, so the model is <b>${(f/rnd).toFixed(0)}x</b> better.`;
+ const cv=$('#qc'),g=cv.getContext('2d'),W=cv.width,H=cv.height,P=34,Mx=600,fg=getComputedStyle(document.body).color;
+ const X=i=>P+i/Mx*(W-P-10),Y=v=>H-P-v/tot*(H-P-10);g.clearRect(0,0,W,H);g.strokeStyle=fg;g.fillStyle=fg;g.globalAlpha=.5;
+ g.strokeRect(P,10,W-P-10,H-P-10);g.fillText('Postings reviewed (highest score first)',P+70,H-8);g.fillText('Frauds found',2,18);
+ g.setLineDash([4,4]);g.beginPath();g.moveTo(X(0),Y(0));g.lineTo(X(Mx),Y(Mx*tot/TS.length));g.stroke();g.setLineDash([]);g.globalAlpha=1;
+ g.strokeStyle='#2b5fd9';g.lineWidth=2;g.beginPath();for(let i=0;i<=Mx;i++)i?g.lineTo(X(i),Y(CUM[i])):g.moveTo(X(0),Y(0));g.stroke();
+ g.fillStyle='#c8372d';g.beginPath();g.arc(X(n),Y(f),6,0,7);g.fill();
 }

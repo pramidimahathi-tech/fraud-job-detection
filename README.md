@@ -18,6 +18,7 @@ Can we predict whether a job posting is fraudulent using only the information on
 - `results/`: saved results (listed below).
 - `fraud_model.joblib`: the trained scikit-learn pipeline.
 - `requirements.txt`: Python packages.
+- `README.md`: this file.
 
 ## Data
 

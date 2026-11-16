@@ -27,8 +27,8 @@ It has 17,880 rows and 18 columns, of which 866 are fraudulent (4.84%). It is th
 
 ## Setup and run
 
-1. Install the packages: `pip install -r requirements.txt` (scikit-learn version 1.6.1).
-2. Open `ES_335_ML_Project.ipynb` (it was run in Google Colab) and run all cells from top to bottom. The random forest comparison is the slowest cell and takes several minutes.
+1. Install the packages: `pip install -r requirements.txt` (tested with Python 3.13 and scikit-learn 1.6.1).
+2. Open `ES_335_ML_Project.ipynb` in Google Colab (the notebook uses Colab's file upload and download, so it is not meant to run locally) and run all cells from top to bottom. The random forest comparison is the slowest cell and takes several minutes.
 3. The random seed is 42 everywhere (`RANDOM_STATE`), so the results repeat.
 4. The last cells write `model.json`, `examples.json` and the files in `results/`.
 5. To see the website on your own computer, run `python -m http.server` in the repository folder and open `http://localhost:8000`. This step is optional, because the live website link above works without it.
@@ -46,7 +46,7 @@ It has 17,880 rows and 18 columns, of which 866 are fraudulent (4.84%). It is th
 - Baseline: always predict "genuine".
 - Logistic regression (class-balanced). The penalty (L1 or L2) and C (0.01 to 100) were tuned with 5-fold stratified cross-validation scored by PR-AUC. Best setting: L2, C = 10.
 - Random forest (200 class-balanced trees). The minimum leaf size (1 or 3) was tuned on the same folds.
-- All models were compared with the same 5-fold cross-validation on the training set. The test set was used once, for the chosen model only. The 0.5 decision threshold was fixed before testing.
+- All models were compared with the same 5-fold cross-validation on the training set. The test set was used for one final evaluation of the chosen model; the bootstrap intervals, threshold table and error analysis describe that result only, and no model or setting was changed afterwards, for the chosen model only. The 0.5 decision threshold was fixed before testing.
 
 Cross-validation on the training set (mean over 5 folds):
 
@@ -80,16 +80,20 @@ Final test result for logistic regression (threshold 0.5): accuracy 0.970, preci
 ## Notes on files
 
 - The raw dataset and any API keys are not stored in this repository.
-- `examples.json` contains short excerpts of a few postings from the public dataset, used only for the website demo.
+- `examples.json` contains 11 example postings and 20 verification postings (full text) from the public dataset. It is used for the website demo and to check that the browser scoring matches the Python scores.
 - `.joblib` files can run code when they are loaded, so only open ones from a source you trust.
 
 ## AI-use disclosure
 
-We used Claude (Anthropic) as a helper:
+We took help of Claude(Anthropic):
+
 - To explain concepts such as TF-IDF, one-hot encoding, ColumnTransformer and cross-validation.
-- To help write the website files (index.html, style.css, app.js).
-- In some model training coding parts
+- To help write the website files (`index.html`, `style.css`, `app.js`).
+- To help with some of the model training code.
+- To review our notebook, results and README and suggest fixes.
+
 We chose the dataset, the question and the models, ran the notebook ourselves, and checked the results.
+
 All reported numbers come from running our notebook.
 
 ## References

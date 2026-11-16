@@ -85,11 +85,12 @@ Final test result for logistic regression (threshold 0.5): accuracy 0.970, preci
 
 ## AI-use disclosure
 
-We took help of Claude (Anthropic) during this project:
-- To explain some concepts like TF-IDF, one-hot encoding, ColumnTransformer, cross-validation.
-- In some of the coding parts of model training
-- To write the website files (`index.html`, `style.css`, `app.js`) and the notebook cells that export the model to JSON, compare models, analyse errors and save results.
-- All reported numbers come from running our notebook.
+We used Claude (Anthropic) as a helper:
+- To explain concepts such as TF-IDF, one-hot encoding, ColumnTransformer and cross-validation.
+- To help write the website files (index.html, style.css, app.js).
+- In some model training coding parts
+We chose the dataset, the question and the models, ran the notebook ourselves, and checked the results.
+All reported numbers come from running our notebook.
 
 ## References
 

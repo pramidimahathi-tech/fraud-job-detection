@@ -33,13 +33,13 @@
 <p>Because only about 4% of postings are fraud, accuracy is misleading. We lead with <b>PR-AUC</b> (ranking quality for the rare class), <b>recall</b> (frauds caught) and <b>precision</b> (flags that are right), and report F1 and ROC-AUC as summaries. Bootstrap intervals (1,000 resamples of the test set) show how uncertain the numbers are.</p><p>The 0.5 decision threshold was fixed before testing. The slider in Results is for understanding the trade-off, not for choosing a threshold on test data.</p></section>
 
 <section id="results"><h2>Results</h2>
-<details><summary>Table: baseline vs final model (cross-validation, test, 95% intervals)</summary><table><tr><th>Metric</th><th>Baseline (test)</th><th>CV on train (mean)</th><th>Test</th><th>Test 95% interval</th></tr>
+<table><tr><th>Metric</th><th>Baseline (test)</th><th>CV on train (mean)</th><th>Test</th><th>Test 95% interval</th></tr>
 <tr><td>Accuracy</td><td>0.957</td><td>0.965</td><td>0.970</td><td>n/a</td></tr>
 <tr><td>Precision</td><td>0.000</td><td>0.580</td><td>0.612</td><td>0.537 to 0.677</td></tr>
 <tr><td>Recall</td><td>0.000</td><td>0.731</td><td>0.812</td><td>0.746 to 0.874</td></tr>
 <tr><td>F1</td><td>0.000</td><td>0.646</td><td>0.698</td><td>0.636 to 0.748</td></tr>
 <tr><td>PR-AUC</td><td>0.043</td><td>0.711</td><td>0.806</td><td>0.743 to 0.857</td></tr>
-<tr><td>ROC-AUC</td><td>0.500</td><td>0.955</td><td>0.976</td><td>n/a</td></tr></table></details>
+<tr><td>ROC-AUC</td><td>0.500</td><td>0.955</td><td>0.976</td><td>n/a</td></tr></table>
 <p>The model catches 112 of 138 test frauds (recall 0.81), but about 4 in 10 of its flags are false alarms. Test scores sit slightly above CV, which is within the uncertainty of only 138 test frauds.</p>
 <div class="card"><b>Explore the trade-off.</b> Move the threshold on the 3,190 test postings: a lower threshold catches more fraud but raises false alarms.
 <label>Threshold: <b id="ethv"></b></label><input type="range" id="eth" min="0.05" max="0.95" step="0.01" value="0.5">

@@ -150,8 +150,9 @@
             with the label on training rows only: about 0.002 for salary, 0.001 for telecommuting
             and 0.000 for benefits and department (as present/absent flags), against 0.013 to 0.029
             for the main kept columns (industry, function, company logo, company profile).
-            Location is a messy free-text field mixing country, state and city, so we dropped it.
-            The country part alone had a small mutual information score (0.018).
+            Location was excluded because it combines country, state and city information in an inconsistent free-text format.
+            Although the country component had a mutual information score of 0.018, we chose not to include it to keep
+            preprocessing manageable.
         </li>
         <li>
             <b>Fill gaps:</b> missing categories become "Missing" (itself informative);
@@ -282,6 +283,11 @@
         The 0.5 decision threshold was fixed before testing.
         The slider in Results is for understanding the trade-off,
         not for choosing a threshold on test data.
+        <p>
+        The reported cross-validation scores for the selected model may be somewhat optimistic because the same folds
+        were used for hyperparameter selection and performance reporting. The final test set was kept separate to
+        provide an independent evaluation.
+</p>
     </p>
 </section>
 
@@ -481,9 +487,10 @@
             of correctly passed genuine postings, and they are shorter (median 174 vs 245 words).
         </li>
         <li>
-            <b>Missed frauds look ordinary.</b>
-            42% have both a logo and a profile (caught frauds: 25%),
-            so the model scores them low (median 0.15).
+            <<b>Missed frauds look ordinary.</b>
+            42% have both a company profile and company logo compared with 25% for each feature
+            among caught frauds. These features may make some fraudulent postings appear more legitimate
+            to the model, contributing to their low median score (0.15).
         </li>
         <li>
             <b>The threshold only helps borderline cases.</b>
@@ -525,9 +532,10 @@
             which may reflect how this dataset was collected rather than fraud itself.
         </li>
         <li>
-            A random forest tied logistic regression on ranking quality in CV,
-            so the choice of logistic regression rests on recall at 0.5 and interpretability,
-            not on a clear accuracy win.
+           Random Forest achieved a slightly higher PR-AUC than Logistic Regression in cross-validation (0.732 vs 0.711),
+           but the difference was small relative to the fold-to-fold variation. Logistic Regression was selected
+           because it achieved substantially higher recall and F1 at the default threshold and offers interpretable
+           feature weights.
         </li>
         <li>
             Precision is about 0.6, so some genuine postings are flagged as suspicious
@@ -574,7 +582,8 @@
             set it caught 81%, with a precision of 0.61. A key limitation is that about
             4 in 10 of its flags are false alarms, so its output needs human review.
             A small change shows the trade-off: lowering the threshold from 0.5 to 0.3
-            on the test set raises recall from 0.81 to 0.83 but lowers precision from 0.61 to 0.45.
+            on the test set raises recall from 0.81 to 0.83 but lowers precision from 0.61 to 0.45.This is a post-evaluation sensitivity analysis to illustrate the precision-recall trade-off, not a threshold
+            selected or tuned using the test set.
         </p>
     </details>
 

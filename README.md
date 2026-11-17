@@ -31,14 +31,14 @@ It has 17,880 rows and 18 columns, of which 866 are fraudulent (4.84%). It is th
 1. Install the packages: `pip install -r requirements.txt` (tested with Python 3.13 and scikit-learn 1.6.1).
 2. Open `ES_335_ML_Project.ipynb` in Google Colab (the notebook uses Colab's file upload and download, so it is not meant to run locally) and run all cells from top to bottom. The random forest comparison is the slowest cell and takes several minutes.
 3. The random seed is 42 everywhere (`RANDOM_STATE`), so the results repeat.
-4. The last cells write `model.json`, `examples.json` and the files in `results/`.
+4. 4. The test evaluation cell writes `test_scores.csv` and `fraud_model.joblib`. The last cells write `model.json`, `examples.json` and the files in `results/`.
 5. To see the website on your own computer, run `python -m http.server` in the repository folder and open `http://localhost:8000`. This step is optional, because the live website link above works without it.
 
 ## Preprocessing and split
 
 - Duplicate postings are removed first (same title, description and requirements; the first copy is kept). 17,880 rows become 15,948 rows, of which 688 are fraud (4.31%).
 - Columns dropped: `job_id`, `location`, `salary_range`, `department`, `benefits`, `telecommuting`. Salary range (84% missing) and department (65% missing) are mostly empty, and the ID is only a label. On the training data the dropped columns had very low mutual information with the label, except country (0.018), which was left out for simplicity.
-- Missing categories are filled with `Missing`. Missing text is filled with an empty string. The company profile text is dropped and replaced by a yes/no flag `has_company_profile`. Title, description and requirements are joined into one text field.
+- Missing categories are filled with `Missing`. Missing text is filled with an empty string. The `company_profile` text is dropped and replaced by a yes/no flag `has_company_profile`. Title, description and requirements are joined into one text field (`text_blob` in the notebook).
 - Split: stratified 80/20 train/test split with seed 42. Training set: 12,758 postings (550 fraud). Test set: 3,190 postings (138 fraud). `results/split_indices.csv` lists every row; `row_index` is the 0-based row number in the original `fake_job_postings.csv`.
 - TF-IDF (5,000 words, English stop words removed, words in at least 5 postings), one-hot encoding of the 5 category columns, and the 3 yes/no flags are all inside a scikit-learn Pipeline. They are fitted on training folds only, so no information from validation or test rows is used.
 
@@ -81,7 +81,7 @@ Final test result for logistic regression (threshold 0.5): accuracy 0.970, preci
 ## Notes on files
 
 - The raw dataset and any API keys are not stored in this repository.
-- `examples.json` contains 11 example postings and 20 verification postings (full text) from the public dataset. It is used for the website demo and to check that the browser scoring matches the Python scores.The three "Borderline" examples were copied by hand from the 20 verification postings; the notebook itself exports 8 labelled examples and the 20 verification postings.
+- `examples.json` contains 11 example postings and 20 verification postings (full text) from the public dataset. It is used for the website demo and to check that the browser scoring matches the Python scores. The three "Borderline" examples were copied by hand from the 20 verification postings; the notebook itself exports 8 labelled examples and the 20 verification postings.
 - `.joblib` files can run code when they are loaded, so only open ones from a source you trust.
 
 ## AI-use disclosure

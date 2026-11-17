@@ -104,7 +104,7 @@ We took help of Claude(Anthropic):
 
 - To explain concepts such as TF-IDF, one-hot encoding, ColumnTransformer and cross-validation.
 - To help write the website files (`index.html`, `style.css`, `app.js`).
-- To help with some of the model training code.
+- To help in some of the coding parts of model training.
 - To review our notebook, results and README and suggest fixes.
 
 We chose the dataset, the question and the models, ran the notebook ourselves, and checked the results.

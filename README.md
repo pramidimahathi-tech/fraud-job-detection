@@ -72,10 +72,11 @@ Final test result for logistic regression (threshold 0.5): accuracy 0.970, preci
 
 ## Limitations
 
-- One dataset from one source and period, so results may not hold for current postings.
-- Only 138 test frauds, so the intervals are wide.
-- The model relies on whether a posting has a company logo and profile, which may reflect how the data was collected.
-- About 4 in 10 flagged postings are false alarms, so flagged postings need human review.
+The dataset comes from one source and contains postings collected in 2012–2014. Recruitment practices and scam tactics can change, so the patterns learned by the model may not represent current postings or generalise to other platforms.
+Only 138 test frauds: the intervals are wide (recall could be 0.75 to 0.87).
+The model leans on logo and profile flags and on industry words (oil, gas, subsea), which may reflect how this dataset was collected rather than fraud itself.
+Random Forest achieved a slightly higher PR-AUC than Logistic Regression in cross-validation (0.732 vs 0.711), but the difference was small relative to the fold-to-fold variation. Logistic Regression was selected because it achieved substantially higher recall and F1 at the default threshold and offers interpretable feature weights.
+Precision is about 0.6, so some genuine postings are flagged as suspicious and every alert needs human review. The model is a screening aid, not proof that a posting is fraudulent. Duplicates were removed by matching title, description and requirements; near-duplicates may remain.
 
 ## Notes on files
 

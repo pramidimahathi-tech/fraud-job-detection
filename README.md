@@ -30,7 +30,7 @@ It has 17,880 rows and 18 columns, of which 866 are fraudulent (4.84%). It is th
 1. Install the packages: `pip install -r requirements.txt` (tested with Python 3.13 and scikit-learn 1.6.1).
 2. Open `ES_335_ML_Project.ipynb` in Google Colab (the notebook uses Colab's file upload and download, so it is not meant to run locally) and run all cells from top to bottom. The random forest comparison is the slowest cell and takes several minutes.
 3. The random seed is 42 everywhere (`RANDOM_STATE`), so the results repeat.
-4. 4. The test evaluation cell writes `test_scores.csv` and `fraud_model.joblib`. The last cells write `model.json`, `examples.json` and the files in `results/`.
+4. The test evaluation cell writes `test_scores.csv` and `fraud_model.joblib`. The last cells write `model.json`, `examples.json` and the files in `results/`.
 5. To see the website on your own computer, run `python -m http.server` in the repository folder and open `http://localhost:8000`. This step is optional, because the live website link above works without it.
 
 ## Preprocessing and split
@@ -103,8 +103,8 @@ Final test result for logistic regression (threshold 0.5): accuracy 0.970, preci
 We took help of Claude(Anthropic):
 
 - To explain concepts such as TF-IDF, one-hot encoding, ColumnTransformer and cross-validation.
-- To help write the website files (`index.html`, `style.css`, `app.js`).
-- To help in some of the coding parts of model training.
+- In writing the website files (`index.html`, `style.css`, `app.js`).
+- In writing the notebook cells that compare the models, analyse the errors, save the results files and export the model to JSON.
 - To review our notebook, results and README and suggest fixes.
 
 We chose the dataset, the question and the models, ran the notebook ourselves, and checked the results.
@@ -116,3 +116,4 @@ All reported numbers come from running our notebook.
 1. Vidros, S., Kolias, C., Kambourakis, G., and Akoglu, L. (2017). Automatic Detection of Online Recruitment Frauds: Characteristics, Methods, and a Public Dataset. Future Internet, 9(1), 6. https://doi.org/10.3390/fi9010006
 2. Kaggle dataset "Real / Fake Job Posting Prediction" (Kaggle user shivamb). https://www.kaggle.com/datasets/shivamb/real-or-fake-fake-jobposting-prediction
 3. Pedregosa, F. et al. (2011). Scikit-learn: Machine Learning in Python. Journal of Machine Learning Research, 12, 2825-2830.
+4. 4. Other Python libraries used: pandas, NumPy, Matplotlib, seaborn and joblib (versions in `requirements.txt`).

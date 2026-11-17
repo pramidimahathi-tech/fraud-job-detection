@@ -86,7 +86,7 @@
         it is not stored in this repo.
     </p>
 
-    <p>	One row represents one job posting, with its description, company details, requirements and other information..</p>
+    <p>	One row represents one job posting, with its description, company details, requirements and other information.</p>
 
     <p>
         <b>Key variables.</b> Text: title, description, requirements.
@@ -110,6 +110,7 @@
         281 rows are exact copies (ignoring the ID), and counting postings with the same title,
         description and requirements, 1,932 rows repeat an earlier posting.
         No duplicate group had conflicting labels.
+        There is a very high class imbalance only 4.84% among all of our postings are fraud.
     </p>
 
     <div class="card">
@@ -267,7 +268,7 @@
     <p>
         Tuning and final testing are kept apart: the grid search used only the training set
         with 5-fold stratified CV (same folds for every model), and the test set was scored
-        <b>once</b> at the end. Stratification keeps the fraud proportion approximately
+        <b>once</b> at the end. Stratification keeps the fraud proportion (approximately 4.31%)
         consistent across folds.
     </p>
     <p>
@@ -275,7 +276,7 @@
         We lead with <b>PR-AUC</b> (ranking quality for the rare class),
         <b>recall</b> (frauds caught) and <b>precision</b> (flags that are right),
         and report F1 and ROC-AUC as summaries. ROC-AUC can look high when negatives
-        are plentiful (ours is 0.98), so PR-AUC is the main score.
+        are plentiful (ours is 0.98), since PR-AUC is almost same we took F1 and recall to select best one between Logistic regression and Random forest.
         We used 5 folds as a common balance between a stable estimate and run time.
         Bootstrap intervals (1,000 resamples of the test set) show how uncertain the numbers are.
     </p>

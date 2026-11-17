@@ -37,8 +37,8 @@ It has 17,880 rows and 18 columns, of which 866 are fraudulent (4.84%). It is th
 ## Preprocessing and split
 
 - Duplicate postings are removed first (same title, description and requirements; the first copy is kept). 17,880 rows become 15,948 rows, of which 688 are fraud (4.31%).
-- Columns dropped: `job_id`, `location`, `salary_range`, `department`, `benefits`, `telecommuting`. On the training data they had very low mutual information with the label, except country (0.018), which was left out for simplicity.
-- Missing categories are filled with `Missing`. Missing text is filled with an empty string. A flag `has_company_profile` is created from the company profile column. Title, description and requirements are joined into one text field.
+- Columns dropped: `job_id`, `location`, `salary_range`, `department`, `benefits`, `telecommuting`. Salary range (84% missing) and department (65% missing) are mostly empty, and the ID is only a label. On the training data the dropped columns had very low mutual information with the label, except country (0.018), which was left out for simplicity.
+- Missing categories are filled with `Missing`. Missing text is filled with an empty string. The company profile text is dropped and replaced by a yes/no flag `has_company_profile`. Title, description and requirements are joined into one text field.
 - Split: stratified 80/20 train/test split with seed 42. Training set: 12,758 postings (550 fraud). Test set: 3,190 postings (138 fraud). `results/split_indices.csv` lists every row; `row_index` is the 0-based row number in the original `fake_job_postings.csv`.
 - TF-IDF (5,000 words, English stop words removed, words in at least 5 postings), one-hot encoding of the 5 category columns, and the 3 yes/no flags are all inside a scikit-learn Pipeline. They are fitted on training folds only, so no information from validation or test rows is used.
 
@@ -47,7 +47,7 @@ It has 17,880 rows and 18 columns, of which 866 are fraudulent (4.84%). It is th
 - Baseline: always predict "genuine".
 - Logistic regression (class-balanced). The penalty (L1 or L2) and C (0.01 to 100) were tuned with 5-fold stratified cross-validation scored by PR-AUC. Best setting: L2, C = 10.
 - Random forest (200 class-balanced trees). The minimum leaf size (1 or 3) was tuned on the same folds.
-- All models were compared with the same 5-fold cross-validation on the training set. The test set was used for one final evaluation of the chosen model; the bootstrap intervals, threshold table and error analysis describe that result only, and no model or setting was changed afterwards, for the chosen model only. The 0.5 decision threshold was fixed before testing.
+- All models were compared with the same 5-fold cross-validation on the training set. The test set was used for one final evaluation of the chosen model. The bootstrap intervals, threshold table and error analysis describe that result only, and no model or setting was changed afterwards. The 0.5 decision threshold was fixed before testing.
 
 Cross-validation on the training set (mean over 5 folds):
 
@@ -81,7 +81,7 @@ Final test result for logistic regression (threshold 0.5): accuracy 0.970, preci
 ## Notes on files
 
 - The raw dataset and any API keys are not stored in this repository.
-- `examples.json` contains 11 example postings and 20 verification postings (full text) from the public dataset. It is used for the website demo and to check that the browser scoring matches the Python scores.
+- `examples.json` contains 11 example postings and 20 verification postings (full text) from the public dataset. It is used for the website demo and to check that the browser scoring matches the Python scores.The three "Borderline" examples were copied by hand from the 20 verification postings; the notebook itself exports 8 labelled examples and the 20 verification postings.
 - `.joblib` files can run code when they are loaded, so only open ones from a source you trust.
 
 ## AI-use disclosure

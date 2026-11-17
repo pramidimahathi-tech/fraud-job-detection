@@ -2,20 +2,6 @@
 
 Live website: https://pramidimahathi-tech.github.io/fraud-job-detection/
 
-## Team contributions
-
-**Shared work (both team members):**
-- Selected the problem together.
-- Carried out the data preprocessing together: removing duplicate postings, dropping weak columns, filling missing values, building the TF-IDF and one-hot encoding pipeline, and making the stratified train/test split.
-- Built and deployed the project website together.
-
-**Mahathi: logistic regression.**
-- Trained and tuned the logistic regression model (penalty L1 or L2, and strength C, with 5-fold cross-validation).
-- This is the final model used on the test set and on the website.
-
-**Samyuktha: random forest.**
-- Trained and tuned the random forest model (minimum leaf size 1 or 3, on the same cross-validation folds).
-- This is the comparison model, evaluated with cross-validation only.
 
 ## Question
 
@@ -96,6 +82,21 @@ Final test result for logistic regression (threshold 0.5): accuracy 0.970, preci
 - The raw dataset and any API keys are not stored in this repository.
 - `examples.json` contains 11 example postings and 20 verification postings (full text) from the public dataset. It is used for the website demo and to check that the browser scoring matches the Python scores. The three "Borderline" examples were copied by hand from the 20 verification postings; the notebook itself exports 8 labelled examples and the 20 verification postings.
 - `.joblib` files can run code when they are loaded, so only open ones from a source you trust.
+
+## Team contributions
+
+**Shared work (both team members):**
+- Selected the problem together.
+- Carried out the data preprocessing together: removing duplicate postings, dropping weak columns, filling missing values, building the TF-IDF and one-hot encoding pipeline, and making the stratified train/test split.
+- Built and deployed the project website together.
+
+**Mahathi: logistic regression.**
+- Trained and tuned the logistic regression model (penalty L1 or L2, and strength C, with 5-fold cross-validation).
+- This is the final model used on the test set and on the website.
+
+**Samyuktha: random forest.**
+- Trained and tuned the random forest model (minimum leaf size 1 or 3, on the same cross-validation folds).
+- This is the comparison model, evaluated with cross-validation only.
 
 ## AI-use disclosure
 

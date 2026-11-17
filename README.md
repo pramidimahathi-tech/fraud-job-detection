@@ -2,7 +2,20 @@
 
 Live website: https://pramidimahathi-tech.github.io/fraud-job-detection/
 
-Team: Mahathi (logistic regression) and Samyuktha (random forest). Both did the preprocessing and the website.
+## Team contributions
+
+**Shared work (both team members):**
+- Selected the problem together.
+- Carried out the data preprocessing together: removing duplicate postings, dropping weak columns, filling missing values, building the TF-IDF and one-hot encoding pipeline, and making the stratified train/test split.
+- Built and deployed the project website together.
+
+**Mahathi: logistic regression.**
+- Trained and tuned the logistic regression model (penalty L1 or L2, and strength C, with 5-fold cross-validation).
+- This is the final model used on the test set and on the website.
+
+**Samyuktha: random forest.**
+- Trained and tuned the random forest model (minimum leaf size 1 or 3, on the same cross-validation folds).
+- This is the comparison model, evaluated with cross-validation only.
 
 ## Question
 
